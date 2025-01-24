@@ -26,6 +26,7 @@ const ContractRenwalChart = () => {
           color: stageColors[stageIndex % stageColors.length],
           handledBy: `${stage.handledBy}`,
           note: `${stage.note}`,
+          vendor:`${contract.vendor}`
         };
       }),
     );
@@ -35,8 +36,9 @@ const ContractRenwalChart = () => {
       chart: {
         height: Math.max(contracts.length * 50, 600),
         scrollablePlotArea: {
-          minWidth: 1000, // Enables horizontal scrolling
+          minWidth: 1000,
         },
+        backgroundColor: "transparent",
       },
       title: {
         text: "Contract Renewal ContractRenwalChart",
@@ -45,7 +47,7 @@ const ContractRenwalChart = () => {
         type: "datetime",
         min: firstDayOfYear,
         max: endOfMarch,
-        tickInterval: 30 * 24 * 3600 * 1000, // Month interval
+        tickInterval: 30 * 24 * 3600 * 1000, 
         dateTimeLabelFormats: {
           month: "%b %Y",
           year: "%Y",
@@ -85,6 +87,7 @@ const ContractRenwalChart = () => {
           "<span><b>Activity:</b> {point.name}</span><br/>" +
           "<span><b>Start:</b> {point.start:%e %b %Y}</span><br/>" +
           "<span><b>End:</b> {point.end:%e %b %Y}</span><br/>" +
+          "<span><b>Counterparty:</b> {point.vendor}</span><br/>" +
           "<span><b>Handled By:</b> {point.handledBy}</span><br/>" +
           "<span><b>Note:</b> {point.note}</span>",
       },

@@ -11,8 +11,13 @@
 
 body {
   /* background: linear-gradient(to right, #ffdfed 10%, #cef8ef 70%, #e7f2fc); */
-  /* background: linear-gradient(-225deg, #dbfaf9 0%, #e3e1f7 56%, #fad8dc 100%); */
+  /* background: linear-gradient(-225deg, #dbfaf9 0%, #e3e1f7 56%, #fad8dc 100%) no-repeat center center/cover; */
+  /* height: 100vh; */
   font-family: "Poppins", serif;
   font-weight: 400;
   font-style: normal;
+}
+
+.highcharts-credits{
+  display:none !important
 }
