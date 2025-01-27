@@ -10,11 +10,17 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+interface CustomPoint extends Highcharts.Point {
+  start: number;
+  end: number;
+  vendor: string;
+  handledBy: string;
+  note: string;
+}
+
 const ContractRenwalChart = () => {
   const [chartOptions, setChartOptions] = useState<any>(null);
-  const [selectedItem, setSelectedItem] = useState<Highcharts.Point | null>(
-    null
-  );
+  const [selectedItem, setSelectedItem] = useState<CustomPoint | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -134,7 +140,7 @@ const ContractRenwalChart = () => {
           },
           point: {
             events: {
-              click: function (this: Highcharts.Point) {
+              click: function (this: CustomPoint) {
                 setSelectedItem(this); // Pass the clicked item
                 setIsDialogOpen(true); // Open the dialog
               },
@@ -187,7 +193,7 @@ const ContractRenwalChart = () => {
               <p>
                 <strong>Start:</strong>{" "}
                 {selectedItem?.start
-                  ? new Date(selectedItem.start).toLocaleDateString()
+                  ? new Date(selectedItem?.start).toLocaleDateString()
                   : "N/A"}
               </p>
               <p>
