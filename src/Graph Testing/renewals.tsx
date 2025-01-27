@@ -2,16 +2,42 @@ import { useEffect, useState } from "react";
 import Highcharts from "highcharts/highcharts-gantt";
 import HighchartsReact from "highcharts-react-official";
 import { contracts } from "./data";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const ContractRenwalChart = () => {
   const [chartOptions, setChartOptions] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<Highcharts.Point | null>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const currentYear = new Date().getFullYear();
     const firstDayOfYear = new Date(currentYear, 0, 1).getTime();
     const endOfMarch = new Date(currentYear, 2, 31).getTime();
 
-    // Create data series for all stages
+    // Function to handle label formatting
+    const labelFormatter = function (
+      this: Highcharts.AxisLabelsFormatterContextObject
+    ) {
+      const contractIndex = this.pos; // Get the index of the current label
+      const contract = contracts[contractIndex]; // Find the corresponding contract
+
+      // Check if this label belongs to the first column (Contract Title)
+      if (this.axis.categories[contractIndex] === contract.contract) {
+        return `<a href="/contract/${contract.contract}" class="hover:text-blue-500 hover:underline" target="_blank">${contract.contract}</a>`;
+      }
+
+      // Return plain text for other columns
+      return this.value;
+    };
+
     // Create data series for all stages
     const seriesData = contracts.flatMap((contract, index) =>
       contract.stages.map((stage, stageIndex) => {
@@ -26,9 +52,9 @@ const ContractRenwalChart = () => {
           color: stageColors[stageIndex % stageColors.length],
           handledBy: `${stage.handledBy}`,
           note: `${stage.note}`,
-          vendor:`${contract.vendor}`
+          vendor: `${contract.vendor}`,
         };
-      }),
+      })
     );
 
     // Categories for Y-axis labels
@@ -47,7 +73,7 @@ const ContractRenwalChart = () => {
         type: "datetime",
         min: firstDayOfYear,
         max: endOfMarch,
-        tickInterval: 30 * 24 * 3600 * 1000, 
+        tickInterval: 30 * 24 * 3600 * 1000,
         dateTimeLabelFormats: {
           month: "%b %Y",
           year: "%Y",
@@ -80,6 +106,9 @@ const ContractRenwalChart = () => {
             },
           ],
         },
+        labels: {
+          formatter: labelFormatter,
+        },
       },
 
       tooltip: {
@@ -94,6 +123,7 @@ const ContractRenwalChart = () => {
 
       plotOptions: {
         series: {
+          cursor: "pointer",
           dataLabels: {
             enabled: false,
             format: "{point.name}",
@@ -102,8 +132,17 @@ const ContractRenwalChart = () => {
               textOverflow: "ellipsis",
             },
           },
+          point: {
+            events: {
+              click: function (this: Highcharts.Point) {
+                setSelectedItem(this); // Pass the clicked item
+                setIsDialogOpen(true); // Open the dialog
+              },
+            },
+          },
         },
       },
+
       series: [
         {
           name: "Contracts Renewal Stages",
@@ -136,6 +175,40 @@ const ContractRenwalChart = () => {
           Negotiation
         </span>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contract Details</DialogTitle>
+            <DialogDescription>
+              <p>
+                <strong>Event Name:</strong> {selectedItem?.name}
+              </p>
+              <p>
+                <strong>Start:</strong>{" "}
+                {selectedItem?.start
+                  ? new Date(selectedItem.start).toLocaleDateString()
+                  : "N/A"}
+              </p>
+              <p>
+                <strong>End:</strong>{" "}
+                {selectedItem?.end
+                  ? new Date(selectedItem.end).toLocaleDateString()
+                  : "N/A"}
+              </p>
+              <p>
+                <strong>Vendor:</strong> {selectedItem?.vendor || "N/A"}
+              </p>
+              <p>
+                <strong>Handled By:</strong> {selectedItem?.handledBy || "N/A"}
+              </p>
+              <p>
+                <strong>Note:</strong> {selectedItem?.note || "N/A"}
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
