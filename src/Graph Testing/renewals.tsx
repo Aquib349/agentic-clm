@@ -185,7 +185,7 @@ const ContractRenwalChart = () => {
           <DialogHeader>
             <DialogTitle>Activity Details</DialogTitle>
             <DialogDescription>
-              hello
+              {selectedItem?.category}
               <Button variant="default">Add Note</Button>
             </DialogDescription>
           </DialogHeader>
