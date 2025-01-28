@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 
 const ContractDetail = () => {
   const { contract } = useParams();
+
   return (
     <>
       <div className="contract-detail p-6">

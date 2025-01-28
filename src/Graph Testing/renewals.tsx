@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface CustomPoint extends Highcharts.Point {
   start: number;
@@ -27,22 +28,6 @@ const ContractRenwalChart = () => {
     const currentYear = new Date().getFullYear();
     const firstDayOfYear = new Date(currentYear, 0, 1).getTime();
     const endOfMarch = new Date(currentYear, 2, 31).getTime();
-
-    // Function to handle label formatting
-    const labelFormatter = function (
-      this: Highcharts.AxisLabelsFormatterContextObject
-    ) {
-      const contractIndex = this.pos; // Get the index of the current label
-      const contract = contracts[contractIndex]; // Find the corresponding contract
-
-      // Check if this label belongs to the first column (Contract Title)
-      if (this.axis.categories[contractIndex] === contract.contract) {
-        return `<a href="/contract/${contract.contract}" class="hover:text-blue-500 hover:underline" target="_blank">${contract.contract}</a>`;
-      }
-
-      // Return plain text for other columns
-      return this.value;
-    };
 
     // Create data series for all stages
     const seriesData = contracts.flatMap((contract, index) =>
@@ -72,20 +57,24 @@ const ContractRenwalChart = () => {
         },
         backgroundColor: "transparent",
       },
+      accessibility: {
+        enabled: false,
+        keyboardNavigation: {
+          seriesNavigation: {
+            mode: "serialize",
+          },
+        },
+      },
       title: {
-        text: "Contract Renewal ContractRenwalChart",
+        text: "Contract Renewal Chart",
       },
       xAxis: {
         type: "datetime",
         min: firstDayOfYear,
         max: endOfMarch,
         tickInterval: 30 * 24 * 3600 * 1000,
-        dateTimeLabelFormats: {
-          month: "%b %Y",
-          year: "%Y",
-        },
         currentDateIndicator: {
-          enabled: false,
+          enabled: true,
           label: {
             allowOverlap: true,
           },
@@ -96,6 +85,7 @@ const ContractRenwalChart = () => {
       },
       yAxis: {
         type: "category",
+        categories: contracts.map((contract) => contract.contract),
         grid: {
           columns: [
             {
@@ -113,17 +103,29 @@ const ContractRenwalChart = () => {
           ],
         },
         labels: {
-          formatter: labelFormatter,
+          useHTML: false,
+          formatter: function (
+            this: Highcharts.AxisLabelsFormatterContextObject
+          ) {
+            const contractIndex = this.pos;
+            const contract = contracts[contractIndex];
+
+            if (this.axis.categories[contractIndex] === contract.contract) {
+              return `<a href=${`/contract/${contract.contract}`} class="hover:underline hover:text-blue-500 cursor-pointer">${
+                contract.contract
+              }</a>`;
+            }
+            return this.value;
+          },
         },
       },
-
       tooltip: {
         pointFormat:
           "<span><b>Activity:</b> {point.name}</span><br/>" +
           "<span><b>Start:</b> {point.start:%e %b %Y}</span><br/>" +
           "<span><b>End:</b> {point.end:%e %b %Y}</span><br/>" +
           "<span><b>Counterparty:</b> {point.vendor}</span><br/>" +
-          "<span><b>Handled By:</b> {point.handledBy}</span><br/>" +
+          "<span><b>Assigned To:</b> {point.handledBy}</span><br/>" +
           "<span><b>Note:</b> {point.note}</span>",
       },
 
@@ -132,11 +134,6 @@ const ContractRenwalChart = () => {
           cursor: "pointer",
           dataLabels: {
             enabled: false,
-            format: "{point.name}",
-            style: {
-              fontWeight: "normal",
-              textOverflow: "ellipsis",
-            },
           },
           point: {
             events: {
@@ -161,13 +158,14 @@ const ContractRenwalChart = () => {
   if (!chartOptions) return <div>Loading...</div>;
 
   return (
-    <>
+    <div>
       <HighchartsReact
         highcharts={Highcharts}
         constructorType={"ganttChart"}
         options={chartOptions}
       />
-      <div className="w-1/4 m-auto flex justify-between items-center">
+
+      <div className="w-1/4 m-auto flex justify-between items-center pb-4">
         <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
           <span className="flex w-3 h-3 bg-[#00bbf0] rounded me-1.5 shrink-0"></span>
           Check-In
@@ -185,37 +183,15 @@ const ContractRenwalChart = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Contract Details</DialogTitle>
+            <DialogTitle>Activity Details</DialogTitle>
             <DialogDescription>
-              <p>
-                <strong>Event Name:</strong> {selectedItem?.name}
-              </p>
-              <p>
-                <strong>Start:</strong>{" "}
-                {selectedItem?.start
-                  ? new Date(selectedItem?.start).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>End:</strong>{" "}
-                {selectedItem?.end
-                  ? new Date(selectedItem.end).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Vendor:</strong> {selectedItem?.vendor || "N/A"}
-              </p>
-              <p>
-                <strong>Handled By:</strong> {selectedItem?.handledBy || "N/A"}
-              </p>
-              <p>
-                <strong>Note:</strong> {selectedItem?.note || "N/A"}
-              </p>
+              hello
+              <Button variant="default">Add Note</Button>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
 
